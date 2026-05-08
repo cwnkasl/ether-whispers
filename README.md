@@ -1,48 +1,52 @@
-# ether-whispers
+# 🍃 云邮尺素 (Ether Whispers) - 面向学生群体的匿名情感连接平台
 
-This template should help get you started developing with Vue 3 in Vite.
+> 心里的乌云再重，也会有一阵清风将其吹散。
 
-## Recommended IDE Setup
+Ether Whispers（灵犀）是一款主打“温暖治愈”与“极致 UI 美学”的心理健康与情感共鸣 Web 应用。本项目摒弃了传统的复杂交互与冷硬的数据图表，采用纯粹的宋体排版、拟物化的物理动画引擎以及色彩心理学，为用户打造一个可以随时卸下防备的数字避风港。
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Recommended Browser Setup
+## 核心特性与模块
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+项目主要分为“向内倾听”与“向外共鸣”两大体系，包含六大精心设计的核心模块：
 
-## Type Support for `.vue` Imports in TS
+- **今日尺素 (涂鸦签到)**：抛弃传统的文字打卡，让用户选择代表此刻心境的情绪底色，在极简的横纹信纸上自由涂鸦。封缄时伴有丝滑的纸飞机对角线飞行物理动效。
+- **自我档案 (情绪追踪)**：右下角常驻的日记本入口。通过 ECharts 渲染动态柔和的折线渐变图，记录过去七日的压力值起伏，并以画廊形式封存过往的涂鸦尺素。
+- **见信如晤 (匿名互助)**：沉浸式的匿名求助信件系统。结合真实的触控物理阻尼引擎，用户需要手动向下滑动“撕开”信封。阅读来信后，可在同一视场内展开极致对称排版的回信交互。
+- **声学冥想 (物理重置)**：深邃的声学疗愈空间。包含冥想前后的滑动条压力测试（计算情绪 Delta 差值），并在播放时辅以模拟深海涟漪呼吸的律动光圈动画。
+- **灵犀相伴 (陪伴型 AI)**：非侵入式的情感树洞。采用瀑布流对话而非传统气泡，拥有感知用户长文本输入的“倾听光晕”，并内置流式打字机视觉效果。
+- **专业支援 (危机防线)**：为用户提供最后一道安全屏障。包含置顶的 24 小时全国心理危机干预热线，以及带有专业标签与专长的真人咨询师连线功能。
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+---
 
-## Customize configuration
+## 技术栈
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- **前端框架**: Vue 3 (Composition API) + Vite
+- **样式方案**: Tailwind CSS (高度定制的响应式与毛玻璃拟物化设计)
+- **动画引擎**: `@vueuse/motion` (弹簧物理动画) + 原生 CSS 贝塞尔曲线过渡 + 手势追踪 (Pointer Events)
+- **数据可视化**: Apache ECharts (定制化柔和渐变折线图)
+- **图标库**: Iconify (`@iconify/vue` + Phosphor Icons 极细线框体)
+- **字体排版**: 全局深度优化的衬线字体栈 (Source Han Serif SC / 宋体)
 
-## Project Setup
+---
 
-```sh
-npm install
+## 核心目录结构
+
+```text
+src/
+├── assets/
+│   └── images/                # 涂鸦图片与静态资源存储区
+├── components/
+│   ├── CompanionAI.vue        # 灵犀：陪伴型 AI (光晕倾听与打字机特效)
+│   ├── DailyResonance.vue     # 今日推荐：3D 翻转日历卡片
+│   ├── LetterOpener.vue       # 见信如晤：手势追踪撕开信件与回信交互
+│   ├── MeditationHealing.vue  # 声学空间：冥想动画、水波纹与压力测评
+│   ├── ProfessionalSupport.vue# 专业支援：危机干预热线与咨询师列表
+│   └── PostmanFAB.vue         # 情绪档案：底部悬浮黑匣子入口与图表
+├── views/
+│   └── CheckIn.vue            # 今日尺素：主页 Canvas 涂鸦画板
+├── App.vue                    # 全局中枢：毛玻璃个人中心面板与组件调度
+└── main.ts                    # 全局挂载入口
 ```
 
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
