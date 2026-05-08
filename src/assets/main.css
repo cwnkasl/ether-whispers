@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    /* 使用我们定义的匿名安全灰作为默认背景 */
+    @apply bg-healing-sand text-slate-700 antialiased;
+    /* 确保整个应用在切换心情主题时，有一种柔软的渐变过渡感 */
+    transition: background-color 0.8s ease;
+  }
+}
