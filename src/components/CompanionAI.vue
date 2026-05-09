@@ -82,7 +82,10 @@
         <button
           @click="sendMessage"
           class="w-10 h-10 shrink-0 ml-3 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center transition-all hover:bg-indigo-100 active:scale-95 shadow-sm border border-indigo-100/50"
-          :class="{ 'opacity-30 pointer-events-none grayscale': !inputText.trim() }"
+          :class="{
+            'opacity-30 pointer-events-none grayscale':
+              !inputText.trim() || isAiTyping || isReceiving,
+          }"
         >
           <Icon icon="ph:paper-plane-tilt-thin" class="w-5 h-5" />
         </button>
@@ -95,7 +98,7 @@
 import { ref, computed, nextTick } from 'vue'
 import { Icon } from '@iconify/vue'
 
-const emit = defineEmits(['close'])
+defineEmits(['close'])
 
 const messages = ref([
   {
@@ -106,9 +109,9 @@ const messages = ref([
 
 const inputText = ref('')
 const isAiTyping = ref(false)
+const isReceiving = ref(false)
 const chatContainer = ref<HTMLElement | null>(null)
 
-// 光晕判定逻辑
 const isListeningDeeply = computed(() => inputText.value.length > 15)
 
 const scrollToBottom = async () => {
@@ -122,34 +125,114 @@ const scrollToBottom = async () => {
 }
 
 const sendMessage = async () => {
-  if (!inputText.value.trim() || isAiTyping.value) return
+  if (!inputText.value.trim() || isAiTyping.value || isReceiving.value) return
 
   const userMsg = inputText.value
   messages.value.push({ role: 'user', content: userMsg })
   inputText.value = ''
-  scrollToBottom()
 
   isAiTyping.value = true
-  scrollToBottom()
+  isReceiving.value = true
+  await scrollToBottom()
 
-  // 模拟网络延迟和 AI 打字机流式输出 (这里未来可替换为真实的 AI API 调用)
-  setTimeout(() => {
-    isAiTyping.value = false
-    const aiResponseFull =
-      '我能感觉到这段文字背后的重量。\n不必强求自己立刻好起来，允许自己在此刻脆弱，这也是一种勇敢。'
-    const aiMsgIndex = messages.value.push({ role: 'ai', content: '' }) - 1
+  const aiMsgIndex = messages.value.push({ role: 'ai', content: '' }) - 1
 
-    let charIndex = 0
-    const typeWriter = setInterval(() => {
-      if (charIndex < aiResponseFull.length) {
-        messages.value[aiMsgIndex].content += aiResponseFull.charAt(charIndex)
-        charIndex++
-        scrollToBottom()
-      } else {
-        clearInterval(typeWriter)
+  try {
+    const response = await fetch('/coze-api/stream_run', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_COZE_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content: {
+          query: {
+            prompt: [
+              {
+                type: 'text',
+                content: {
+                  text: userMsg,
+                },
+              },
+            ],
+            type: 'query',
+          },
+          session_id: 'cwnkasl_session_' + Math.floor(Math.random() * 10000),
+          project_id: '7637849125974949907',
+        },
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('网络请求失败')
+    }
+
+    if (!response.body) throw new Error('无法读取流数据')
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder('utf-8')
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        const trimLine = line.trim()
+        if (!trimLine) continue
+
+        if (trimLine.startsWith('data:')) {
+          const dataStr = trimLine.slice(5).trim()
+          if (dataStr === '[DONE]') continue
+
+          try {
+            const data = JSON.parse(dataStr)
+            let textDelta = ''
+
+            if (data.type === 'answer') {
+              if (typeof data.content === 'string') {
+                try {
+                  const innerContent = JSON.parse(data.content)
+                  textDelta = innerContent.answer || ''
+                } catch {
+                  textDelta = data.content
+                }
+              } else if (typeof data.content === 'object' && data.content !== null) {
+                textDelta = data.content.answer || data.content.text || data.content.content || ''
+              }
+            }
+
+            if (textDelta) {
+              isAiTyping.value = false
+              if (messages.value[aiMsgIndex]) {
+                messages.value[aiMsgIndex].content += textDelta
+                messages.value[aiMsgIndex].content = messages.value[aiMsgIndex].content.replace(
+                  /\n{2,}/g,
+                  '\n',
+                )
+              }
+              await scrollToBottom()
+            }
+          } catch (_e) {
+            // 静默忽略 JSON 解析错误
+          }
+        }
       }
-    }, 60)
-  }, 1500)
+    }
+  } catch (error) {
+    isAiTyping.value = false
+    if (messages.value[aiMsgIndex]) {
+      messages.value[aiMsgIndex].content = '风太大，信件暂时未能送达，请检查配置。'
+    }
+  } finally {
+    isAiTyping.value = false
+    isReceiving.value = false
+    await scrollToBottom()
+  }
 }
 </script>
 

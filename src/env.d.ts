@@ -1,7 +1,11 @@
 /// <reference types="vite/client" />
 
-declare module '*.vue' {
-  import type { Component } from 'vue'
-  const component: Component
-  export default component
+interface ImportMetaEnv {
+  readonly VITE_COZE_TOKEN: string
+  readonly VITE_COZE_BOT_ID: string
+  // 更多环境变量...
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
 }
